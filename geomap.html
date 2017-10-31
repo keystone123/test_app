@@ -16,7 +16,7 @@
             
             //Device is ready, Get geolocation data 
             function onDeviceReady() {
-                navigator.geolocation.getCurrentPosition(onSuccess,onError);
+                navigator.geolocation.getCurrentPosition(onSuccess,onError,{ timeout: 30000});
             }
             
             //If successful, get position data
