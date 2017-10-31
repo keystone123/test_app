@@ -1,55 +1,61 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>PhoneGap Capture API</title>
-	<style type="text/css">
- 		button {background:#333;color:#fff;border-radius:10px;border:#666 2px solid;padding:5px 10px;}
-	</style>
-    <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
-    <script type="text/javascript" charset="utf-8">
+    <head>
+        <title>PhoneGap Application</title>
+        <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+        <script type="text/javascript">
 
-    //If Success
-    function captureSuccess(mediaFiles) {
-        var i, len;
-        for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-            uploadFile(mediaFiles[i]);
-        }
- 
-    }
+            // Wait for PhoneGap to load
+            document.addEventListener("deviceready", onDeviceReady, false);
 
-    //If Error
-    function captureError(error) {
-        var errMsg = 'An error occurred during capture: ' + error.code;
-        navigator.notification.alert(errMsg, null, 'Uh oh!');
-        alert('error');
-    }
+            // PhoneGap is ready
+            function onDeviceReady() {
+                navigator.geolocation.getCurrentPosition(onSuccess, onError);
+            }
 
-    //Call With Button
-    function takePicture() {
-        navigator.device.capture.captureImage(captureSuccess, captureError);
-    }
+            function onSuccess(position) {
+                var geoElement = document.getElementById('geodata');
+                geoElement.innerHTML =
+                        'Latitude: ' + position.coords.latitude + '<br />' +
+                        'Longitude: ' + position.coords.longitude + '<br />' +
+                        'Altitude: ' + position.coords.altitude + '<br />' +
+                        'Accuracy: ' + position.coords.accuracy + '<br />' +
+                        'Heading: ' + position.coords.heading + '<br />' +
+                        'Speed: ' + position.coords.speed + '<br />' +
+                        'Timestamp: ' + position.timestamp + '<br />';
 
-    //Upload To Server
-    function uploadFile(mediaFile) {
-        var ft = new FileTransfer(),
-            path = mediaFile.fullPath,
-            name = mediaFile.name;
+            }
 
-        ft.upload(path,
-            "http://techguystaging.com/test/upload.php",
-            function(result) {
-                console.log('Upload success: ' + result.responseCode);
-                console.log(result.bytesSent + ' bytes sent');
-            },
-            function(error) {
-                console.log('Error uploading image ' + path + ': ' + error.code);
-            },
-            { fileName: name });
-    }
+            function onError(error) {
+                var errString = '';
+                if (error.code) {
+                    switch (error.code) {
+                        case 1:
+                            errString =
+                                    'We do not have permission';
+                            break;
+                        case 2:
+                            errString =
+                                    'The location can not be determined';
+                            break;
+                        case 3:
+                            errString =
+                                    'There was a timeout';
+                            break;
+                        default:
+                            errString =
+                                    'Unknown error';
+                            break
+                    }
+                }
+                var element = document.getElementById('geodata');
+                element.innerHTML = errString;
+            }
 
-    </script>
+        </script>
     </head>
     <body>
-        <button onclick="takePicture();">Take Picture</button> <br>
+        <h1>Geolocation Data</h1>
+        <div id="geodata">Getting location data...</div>
     </body>
 </html>
